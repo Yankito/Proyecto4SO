@@ -8,22 +8,25 @@ import java.util.Queue;
 
 public class Main {
   
+  static int algoritmo;
+  static int tamanoMemoriaPrincipal, tamanoMemoriaSecundaria;
   public static void main(String[] args) {
 
     ArrayList<Proceso> procesos = new ArrayList<>();
+    LinkedList<Proceso> colaProcesos = new LinkedList<>();
     Random random = new Random();
-    int algoritmo, seleccion, tamanoProceso, quantum, id;
+    int seleccion, tamanoProceso, quantum;
     Scanner sc = new Scanner(System.in);
     System.out.println("Ingrese tamano de memoria principal");
-    int tamanoMemoriaPrincipal = sc.nextInt();
+    tamanoMemoriaPrincipal = sc.nextInt();
     System.out.println("Ingrese tamano de memoria secundaria");
-    int tamanoMemoriaSecundaria = sc.nextInt();
+    tamanoMemoriaSecundaria = sc.nextInt();
+    int numNucleos=4;
 
     Proceso memoriaPrincipal[] = new Proceso[tamanoMemoriaPrincipal];
     Proceso memoriaSecundaria[] = new Proceso[tamanoMemoriaSecundaria];
 
-    System.out.println(
-        "Escoja Algoritmo:\n1)Primer Ajuste\n2)Mejor Ajuste\n3)Peor Ajuste\nOpcion:");
+    System.out.println("Escoja Algoritmo:\n1)Primer Ajuste\n2)Mejor Ajuste\n3)Peor Ajuste\nOpcion:");
     algoritmo = sc.nextInt();
     System.out.println("Escoja Algoritmo de seleccion:\n1)LIFO\n2)FIFO");
     seleccion = sc.nextInt();
@@ -36,35 +39,16 @@ public class Main {
       tamanoProceso = random.nextInt(3) + 1;
       quantum = random.nextInt(5) + 1;
       procesos.add(new Proceso(tamanoProceso, quantum, j));
+      colaProcesos.add(procesos.get(j));
     }
-    while (true) {
 
-      switch (algoritmo) {
-        case 1:
-          id = random.nextInt(10);
-          Algoritmo.inicioPrimerAjuste(memoriaPrincipal, procesos.get(id), memoriaSecundaria);
-          break;
-        case 2:
-          id = random.nextInt(10);
-          Algoritmo.inicioMejorAjuste(memoriaPrincipal, procesos.get(id), memoriaSecundaria);
-          break;
-        case 3:
-          id = random.nextInt(10);
-          Algoritmo.inicioPeorAjuste(memoriaPrincipal, procesos.get(id), memoriaSecundaria);
-          break;
-        default:
-          System.out.println("Algoritmo no valido");
-          break;
-      }
-      System.out.println("=================================================================");
-      System.out.println("........................Memoria pricipal:........................");
-      imprimirArreglo(memoriaPrincipal);
-      System.out.println("=================================================================");
-      System.out.println("........................Memoria Secundaria:......................");
-      imprimirArreglo(memoriaSecundaria);
-      System.out.println("=================================================================");
-      System.out.println("#################################################################\n\n\n");
+    Nucleo nucleos[] = new Nucleo[numNucleos];
+    for (int i = 0; i < numNucleos; i++) {
+      nucleos[i] = new Nucleo(i, memoriaPrincipal, memoriaSecundaria, procesos, colaProcesos);
+      nucleos[i].start();
     }
+
+
   }
 
   /*
@@ -77,11 +61,6 @@ public class Main {
    * }
    */
 
-  static void imprimirArreglo(Proceso[] memoria) {
-    for (int i = 0; i < memoria.length; i++) {
-      System.out.println(memoria[i] + " ");
-    }
-    System.out.println();
-  }
+
 
 }
