@@ -1,6 +1,6 @@
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Stack;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
@@ -111,124 +111,189 @@ public class Algoritmo {
     System.out.println();
   }
 
-  public boolean inicioPrimerAjuste(Proceso[] memoria, Proceso p, Proceso[] memoriaSecundaria) {
-    boolean resultado = false;
-    System.out.println("---Proceso " + p.id + " solicitado---");
-    int aux = determinarOperacion(memoria, p, memoriaSecundaria);
-    if (aux == 1) {
-      System.out.println("Proceso en memoria principal");
-    } else if (aux == 2) {
-      System.out.println("Proceso en memoria secundaria");
-    }
+  public void determinarOpcion(LinkedList<Proceso> colaProcesos){
+      Scanner scn = new Scanner(System.in);
+      System.out.println("Opciones:\n1)Seguir\n2)Ejecutar proceso nuevo");
+      int opcion = scn.nextInt();
+      switch (opcion) {
+        case 1:
+          break;
 
-    if (seleccion == 1) {
-      if (primerAjuste(memoria, p, memoriaSecundaria, pilaLIFO, pilaLIFOSec)) {
-        System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
-        resultado = true;
-      } else {
-        if (aux == 0) {
-          System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
-        }
+        case 2:
+          System.out.println("ID del proceso:");
+          int ID = scn.nextInt();
+          System.out.println("Tamaño del proceso:");
+          int Tamanio = scn.nextInt();
+          System.out.println("Quantum del proceso:");
+          int Quantum = scn.nextInt();
+          Proceso nuevoPro = new Proceso(Tamanio, Quantum, ID);
+          colaProcesos.addFirst(nuevoPro); // Se agrega el proceso a la cola de procesos en la primera posicion para que se ejecute primero
+          break;
+        default:
+          break;
       }
-    } else if (seleccion == 2) {
-      if (primerAjuste(memoria, p, memoriaSecundaria, colaFIFO, colaFIFOSec)) {
-        System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
-        resultado = true;
-      } else {
-        if (aux == 0) {
-          System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
-        }
-      }
-    }
-    System.out.println("=================================================================");
-    System.out.println("........................Memoria pricipal:........................");
-    imprimirArreglo(memoria);
-    System.out.println("=================================================================");
-    System.out.println("........................Memoria Secundaria:......................");
-    imprimirArreglo(memoriaSecundaria);
-    System.out.println("=================================================================");
-    System.out.println("#################################################################\n\n\n");
-    return resultado;
   }
 
-  public boolean inicioMejorAjuste(Proceso[] memoria, Proceso p, Proceso[] memoriaSecundaria) {
-    boolean resultado = false;
-    System.out.println("---Proceso " + p.id + " solicitado---");
-    int aux = determinarOperacion(memoria, p, memoriaSecundaria);
-    if (aux == 1) {
-      System.out.println("Proceso en memoria principal");
-    } else if (aux == 2) {
-      System.out.println("Proceso en memoria secundaria");
-    }
+  public boolean inicioPrimerAjuste(Proceso[] memoria, Proceso[] memoriaSecundaria, LinkedList<Proceso> colaProcesos) {
+    try {
+      semaforo.acquire(); //Semaforo para que solo un hilo pueda acceder a la vez
+      lock.lock();
+      Proceso p = colaProcesos.poll(); //Se obtiene el primer proceso de la cola
+      boolean resultado = false;
+      System.out.println("---Proceso " + p.id + " solicitado---");
+      int aux = determinarOperacion(memoria, p, memoriaSecundaria);
+      if (aux == 1) {
+        System.out.println("Proceso en memoria principal");
+      } else if (aux == 2) {
+        System.out.println("Proceso en memoria secundaria");
+      }
 
-    if (seleccion == 1) {
-      if (mejorAjuste(memoria, p, memoriaSecundaria, pilaLIFO, pilaLIFOSec)) {
-        System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
-        resultado = true;
-      } else {
-        if (aux == 0) {
-          System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
+      if (seleccion == 1) {
+        if (primerAjuste(memoria, p, memoriaSecundaria, pilaLIFO, pilaLIFOSec)) {
+          System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
+          resultado = true;
+        } else {
+          if (aux == 0) {
+            System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
+            colaProcesos.add(p); // Se agrega el proceso a la cola de procesos
+          }
+        }
+      } else if (seleccion == 2) {
+        if (primerAjuste(memoria, p, memoriaSecundaria, colaFIFO, colaFIFOSec)) {
+          System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
+          resultado = true;
+        } else {
+          if (aux == 0) {
+            System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
+            colaProcesos.add(p);  // Se agrega el proceso a la cola de procesos
+          }
         }
       }
-    } else if (seleccion == 2) {
-      if (mejorAjuste(memoria, p, memoriaSecundaria, colaFIFO, colaFIFOSec)) {
-        System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
-        resultado = true;
-      } else {
-        if (aux == 0) {
-          System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
-        }
-      }
+      System.out.println("=================================================================");
+      System.out.println("........................Memoria pricipal:........................");
+      imprimirArreglo(memoria);
+      System.out.println("=================================================================");
+      System.out.println("........................Memoria Secundaria:......................");
+      imprimirArreglo(memoriaSecundaria);
+      System.out.println("=================================================================");
+      System.out.println("#################################################################\n\n\n");
+      determinarOpcion(colaProcesos);
+      semaforo.release();
+      lock.unlock();
+      return resultado;
+    } catch (Exception e) {
+      // Error mi king
+      e.printStackTrace();
+      return false;
     }
-    System.out.println("=================================================================");
-    System.out.println("........................Memoria pricipal:........................");
-    imprimirArreglo(memoria);
-    System.out.println("=================================================================");
-    System.out.println("........................Memoria Secundaria:......................");
-    imprimirArreglo(memoriaSecundaria);
-    System.out.println("=================================================================");
-    System.out.println("#################################################################\n\n\n");
-    return resultado;
   }
 
-  public boolean inicioPeorAjuste(Proceso[] memoria, Proceso p, Proceso[] memoriaSecundaria) {
-    boolean resultado = false;
-    System.out.println("---Proceso " + p.id + " solicitado---");
-    int aux = determinarOperacion(memoria, p, memoriaSecundaria);
-    if (aux == 1) {
-      System.out.println("Proceso en memoria principal");
-    } else if (aux == 2) {
-      System.out.println("Proceso en memoria secundaria");
-    }
+  public boolean inicioMejorAjuste(Proceso[] memoria, Proceso[] memoriaSecundaria, LinkedList<Proceso> colaProcesos) {
+    try {
+      semaforo.acquire();
+      lock.lock();
+      Proceso p = colaProcesos.poll();
+      boolean resultado = false;
+      System.out.println("---Proceso " + p.id + " solicitado---");
+      int aux = determinarOperacion(memoria, p, memoriaSecundaria);
+      if (aux == 1) {
+        System.out.println("Proceso en memoria principal");
+      } else if (aux == 2) {
+        System.out.println("Proceso en memoria secundaria");
+      }
 
-    if (seleccion == 1) {
-      if (peorAjuste(memoria, p, memoriaSecundaria, pilaLIFO, pilaLIFOSec)) {
-        System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
-        resultado = true;
-      } else {
-        if (aux == 0) {
-          System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
+      if (seleccion == 1) {
+        if (mejorAjuste(memoria, p, memoriaSecundaria, pilaLIFO, pilaLIFOSec)) {
+          System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
+          resultado = true;
+        } else {
+          if (aux == 0) {
+            System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
+            colaProcesos.add(p);
+          }
+        }
+      } else if (seleccion == 2) {
+        if (mejorAjuste(memoria, p, memoriaSecundaria, colaFIFO, colaFIFOSec)) {
+          System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
+          resultado = true;
+        } else {
+          if (aux == 0) {
+            System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
+            colaProcesos.add(p);
+          }
         }
       }
-    } else if (seleccion == 2) {
-      if (peorAjuste(memoria, p, memoriaSecundaria, colaFIFO, colaFIFOSec)) {
-        System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
-        resultado = true;
-      } else {
-        if (aux == 0) {
-          System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
-        }
-      }
+      System.out.println("=================================================================");
+      System.out.println("........................Memoria pricipal:........................");
+      imprimirArreglo(memoria);
+      System.out.println("=================================================================");
+      System.out.println("........................Memoria Secundaria:......................");
+      imprimirArreglo(memoriaSecundaria);
+      System.out.println("=================================================================");
+      System.out.println("#################################################################\n\n\n");
+      determinarOpcion(colaProcesos);
+      semaforo.release();
+      lock.unlock();
+      return resultado;
+    } catch (Exception e) {
+      // Error mi king
+      e.printStackTrace();
+      return false;
     }
-    System.out.println("=================================================================");
-    System.out.println("........................Memoria pricipal:........................");
-    imprimirArreglo(memoria);
-    System.out.println("=================================================================");
-    System.out.println("........................Memoria Secundaria:......................");
-    imprimirArreglo(memoriaSecundaria);
-    System.out.println("=================================================================");
-    System.out.println("#################################################################\n\n\n");
-    return resultado;
+  }
+
+  public boolean inicioPeorAjuste(Proceso[] memoria, Proceso[] memoriaSecundaria, LinkedList<Proceso> colaProcesos) {
+    try {
+      semaforo.acquire();
+      lock.lock();
+      Proceso p = colaProcesos.poll();
+      boolean resultado = false;
+      System.out.println("---Proceso " + p.id + " solicitado---");
+      int aux = determinarOperacion(memoria, p, memoriaSecundaria);
+      if (aux == 1) {
+        System.out.println("Proceso en memoria principal");
+      } else if (aux == 2) {
+        System.out.println("Proceso en memoria secundaria");
+      }
+
+      if (seleccion == 1) {
+        if (peorAjuste(memoria, p, memoriaSecundaria, pilaLIFO, pilaLIFOSec)) {
+          System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
+          resultado = true;
+        } else {
+          if (aux == 0) {
+            System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
+            colaProcesos.add(p);
+          }
+        }
+      } else if (seleccion == 2) {
+        if (peorAjuste(memoria, p, memoriaSecundaria, colaFIFO, colaFIFOSec)) {
+          System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
+          resultado = true;
+        } else {
+          if (aux == 0) {
+            System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
+            colaProcesos.add(p);
+          }
+        }
+      }
+      System.out.println("=================================================================");
+      System.out.println("........................Memoria pricipal:........................");
+      imprimirArreglo(memoria);
+      System.out.println("=================================================================");
+      System.out.println("........................Memoria Secundaria:......................");
+      imprimirArreglo(memoriaSecundaria);
+      System.out.println("=================================================================");
+      System.out.println("#################################################################\n\n\n");
+      determinarOpcion(colaProcesos);
+      semaforo.release();
+      lock.unlock();
+      return resultado;
+    } catch (Exception e) {
+      // Error mi king
+      e.printStackTrace();
+      return false;
+    }
   }
 
   public static int determinarOperacion(Proceso[] memoria, Proceso p, Proceso[] memoriaSecundaria) {
@@ -256,7 +321,6 @@ public class Algoritmo {
 
     // System.out.println("Proceso " + p.id + " solicitado");
     if (aux == 1) {
-      System.out.println("Proceso " + p + " ejecutado por cpu\n");
       restarTiempo(memoria, p);
     } else if (aux == 2) {
       // System.out.println("Proceso en memoria secundaria");
@@ -279,7 +343,6 @@ public class Algoritmo {
               pilaLIFO.push(nuevo);
               pilaLIFO.push(p);
               SeleccionProceso.eliminarProceso(memoriaSecundaria, p);
-              System.out.println("Proceso " + p + " ejecutado por cpu\n");
               restarTiempo(memoria, p);
               return true;
             }
@@ -328,7 +391,6 @@ public class Algoritmo {
     }
 
     if (aux == 1) {
-      System.out.println("Proceso " + p + " ejecutado por cpu\n");
       restarTiempo(memoria, p);
     } else if (aux == 2) {
       Proceso nuevo = null;
@@ -350,7 +412,6 @@ public class Algoritmo {
               colaFIFO.addFirst(nuevo);
               colaFIFO.add(p);
               SeleccionProceso.eliminarProceso(memoriaSecundaria, p);
-              System.out.println("Proceso " + p + " ejecutado por cpu\n");
               restarTiempo(memoria, p);
               return true;
             }
@@ -358,7 +419,6 @@ public class Algoritmo {
         }
       }
       SeleccionProceso.FIFO(memoriaSecundaria, memoria, nuevo, colaFIFOSec, colaFIFO);
-      System.out.println("Proceso " + p + " ejecutado por cpu\n");
       restarTiempo(memoria, p);
     } else {
 
@@ -417,14 +477,12 @@ public class Algoritmo {
         pilaLIFO.push(nuevo);
         pilaLIFO.push(p);
         SeleccionProceso.eliminarProceso(memoriaSecundaria, p);
-        System.out.println("Proceso " + p + " ejecutado por cpu\n");
         restarTiempo(memoria, p);
 
         return true;
       }
 
       SeleccionProceso.LIFO(memoriaSecundaria, memoria, nuevo, pilaLIFOSec, pilaLIFO);
-      System.out.println("Proceso " + p + " ejecutado por cpu\n");
       restarTiempo(memoria, p);
     } else {
       int indice = buscarEspacioPequeno(memoria, p.tamano);
@@ -472,13 +530,11 @@ public class Algoritmo {
         colaFIFO.addFirst(nuevo);
         colaFIFO.add(p);
         SeleccionProceso.eliminarProceso(memoriaSecundaria, p);
-        System.out.println("Proceso " + p + " ejecutado por cpu\n");
         restarTiempo(memoria, p);
         return true;
       }
 
       SeleccionProceso.FIFO(memoriaSecundaria, memoria, nuevo, colaFIFOSec, colaFIFO);
-      System.out.println("Proceso " + p + " ejecutado por cpu\n");
       restarTiempo(memoria, p);
     } else {
       int indice = buscarEspacioPequeno(memoria, p.tamano);
@@ -530,13 +586,11 @@ public class Algoritmo {
         pilaLIFO.push(nuevo);
         pilaLIFO.push(p);
         SeleccionProceso.eliminarProceso(memoriaSecundaria, p);
-        System.out.println("Proceso " + p + " ejecutado por cpu\n");
         restarTiempo(memoria, p);
         return true;
       }
 
       SeleccionProceso.LIFO(memoriaSecundaria, memoria, nuevo, pilaLIFOSec, pilaLIFO);
-      System.out.println("Proceso " + p + " ejecutado por cpu\n");
       restarTiempo(memoria, p);
 
     } else {
@@ -584,13 +638,11 @@ public class Algoritmo {
         colaFIFO.addFirst(nuevo);
         colaFIFO.add(p);
         SeleccionProceso.eliminarProceso(memoriaSecundaria, p);
-        System.out.println("Proceso " + p + " ejecutado por cpu\n");
         restarTiempo(memoria, p);
         return true;
       }
 
       SeleccionProceso.FIFO(memoriaSecundaria, memoria, nuevo, colaFIFOSec, colaFIFO);
-      System.out.println("Proceso " + p + " ejecutado por cpu\n");
       restarTiempo(memoria, p);
 
     } else {
@@ -612,6 +664,7 @@ public class Algoritmo {
   }
 
   static void restarTiempo(Proceso[] memoria, Proceso p) {
+    System.out.println("Proceso " + p + " ejecutado por cpu\n");
     for (int i = 0; i < memoria.length; i++) {
       if (memoria[i] != null && memoria[i].id == p.id) {
         memoria[i].quantum -= quantumProcesador;

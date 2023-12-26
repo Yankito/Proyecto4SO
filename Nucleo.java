@@ -32,56 +32,22 @@ public class Nucleo extends Thread {
 
   @Override
   public void run() {
-    while (true) {
-      try {
-        semaforo.acquire();
-        lock.lock();
-        System.out.println("Nucleo " + idNucleo + " corriendo");
-        // int id = random.nextInt(10);
-        Proceso p = colaProcesos.poll();
+    while (true) { //Se ejecutan los hilos
+      System.out.println("Nucleo " + idNucleo + " corriendo");
         switch (Main.algoritmo) {
           case 1:
-            if (!algoritmo.inicioPrimerAjuste(memoriaPrincipal, p, memoriaSecundaria))
-              colaProcesos.add(p);
+            algoritmo.inicioPrimerAjuste(memoriaPrincipal, memoriaSecundaria, colaProcesos);
             break;
           case 2:
-            if (!algoritmo.inicioMejorAjuste(memoriaPrincipal, p, memoriaSecundaria))
-              colaProcesos.add(p);
+            algoritmo.inicioMejorAjuste(memoriaPrincipal, memoriaSecundaria, colaProcesos);
             break;
           case 3:
-            if (!algoritmo.inicioPeorAjuste(memoriaPrincipal, p, memoriaSecundaria))
-              colaProcesos.add(p);
+            algoritmo.inicioPeorAjuste(memoriaPrincipal, memoriaSecundaria, colaProcesos);
             break;
           default:
             System.out.println("Algoritmo no valido");
             break;
         }
-        System.out.println("Opciones:\n1)Seguir\n2)Ejecutar proceso nuevo");
-        opcion = scn.nextInt();
-        switch (opcion) {
-          case 1:
-            break;
-
-          case 2:
-            System.out.println("ID del proceso:");
-            ID = scn.nextInt();
-            System.out.println("Tamaño del proceso:");
-            Tamanio = scn.nextInt();
-            System.out.println("Quantum del proceso:");
-            Quantum = scn.nextInt();
-            Proceso nuevoPro = new Proceso(Tamanio, Quantum, ID);
-            colaProcesos.addFirst(nuevoPro);
-            break;
-          default:
-            break;
-        }
-
-        semaforo.release();
-        lock.unlock();
-      } catch (Exception e) {
-        // Error mi king
-        e.printStackTrace();
-      }
     }
 
   }
