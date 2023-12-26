@@ -7,9 +7,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class Main {
-  
+
   static int algoritmo;
   static int tamanoMemoriaPrincipal, tamanoMemoriaSecundaria;
+
   public static void main(String[] args) {
 
     ArrayList<Proceso> procesos = new ArrayList<>();
@@ -21,7 +22,7 @@ public class Main {
     tamanoMemoriaPrincipal = sc.nextInt();
     System.out.println("Ingrese tamano de memoria secundaria");
     tamanoMemoriaSecundaria = sc.nextInt();
-    int numNucleos=4;
+    int numNucleos = 4;
 
     Proceso memoriaPrincipal[] = new Proceso[tamanoMemoriaPrincipal];
     Proceso memoriaSecundaria[] = new Proceso[tamanoMemoriaSecundaria];
@@ -48,7 +49,6 @@ public class Main {
       nucleos[i].start();
     }
 
-
   }
 
   /*
@@ -60,7 +60,5 @@ public class Main {
    * j++;
    * }
    */
-
-
 
 }
