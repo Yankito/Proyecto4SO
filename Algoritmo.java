@@ -111,34 +111,47 @@ public class Algoritmo {
     System.out.println();
   }
 
-  public void determinarOpcion(LinkedList<Proceso> colaProcesos){
-      Scanner scn = new Scanner(System.in);
-      System.out.println("Opciones:\n1)Seguir\n2)Ejecutar proceso nuevo");
-      int opcion = scn.nextInt();
-      switch (opcion) {
-        case 1:
-          break;
+  public void determinarOpcion(LinkedList<Proceso> colaProcesos) {
+    Scanner scn = new Scanner(System.in);
+    System.out.println("Opciones:\n1)Seguir\n2)Ejecutar proceso nuevo");
+    int opcion = scn.nextInt();
+    switch (opcion) {
+      case 1:
+        break;
 
-        case 2:
-          System.out.println("ID del proceso:");
-          int ID = scn.nextInt();
-          System.out.println("Tamaño del proceso:");
-          int Tamanio = scn.nextInt();
-          System.out.println("Quantum del proceso:");
-          int Quantum = scn.nextInt();
-          Proceso nuevoPro = new Proceso(Tamanio, Quantum, ID);
-          colaProcesos.addFirst(nuevoPro); // Se agrega el proceso a la cola de procesos en la primera posicion para que se ejecute primero
-          break;
-        default:
-          break;
-      }
+      case 2:
+        System.out.println("ID del proceso:");
+        int ID = scn.nextInt();
+        System.out.println("Tamaño del proceso:");
+        int Tamanio = scn.nextInt();
+        System.out.println("Quantum del proceso:");
+        int Quantum = scn.nextInt();
+        System.out.println("Dividir proceso?:\n1)no\n2)si");
+        int divPro = scn.nextInt();
+        switch (divPro) {
+          case 2:
+            for (int i = 0; i < Quantum; i++) {
+              Proceso nuevoProceso = new Proceso(Tamanio, 1, ID * 10 + i);
+              colaProcesos.addFirst(nuevoProceso);
+            }
+            break;
+          default:
+            Proceso nuevoPro = new Proceso(Tamanio, Quantum, ID);
+            colaProcesos.addFirst(nuevoPro); // Se agrega el proceso a la cola de procesos en la primera posicion para
+                                             // que se ejecute primero
+            break;
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   public boolean inicioPrimerAjuste(Proceso[] memoria, Proceso[] memoriaSecundaria, LinkedList<Proceso> colaProcesos) {
     try {
-      semaforo.acquire(); //Semaforo para que solo un hilo pueda acceder a la vez
+      semaforo.acquire(); // Semaforo para que solo un hilo pueda acceder a la vez
       lock.lock();
-      Proceso p = colaProcesos.poll(); //Se obtiene el primer proceso de la cola
+      Proceso p = colaProcesos.poll(); // Se obtiene el primer proceso de la cola
       boolean resultado = false;
       System.out.println("---Proceso " + p.id + " solicitado---");
       int aux = determinarOperacion(memoria, p, memoriaSecundaria);
@@ -165,7 +178,7 @@ public class Algoritmo {
         } else {
           if (aux == 0) {
             System.out.println("!!!No hay espacio suficiente en memoria para el proceso " + p + "!!!\n");
-            colaProcesos.add(p);  // Se agrega el proceso a la cola de procesos
+            colaProcesos.add(p); // Se agrega el proceso a la cola de procesos
           }
         }
       }
