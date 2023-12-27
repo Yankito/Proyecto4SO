@@ -36,13 +36,13 @@ public class Nucleo extends Thread {
       System.out.println("Nucleo " + idNucleo + " corriendo");
         switch (Main.algoritmo) {
           case 1:
-            algoritmo.inicioPrimerAjuste(memoriaPrincipal, memoriaSecundaria, colaProcesos);
+            algoritmo.inicioPrimerAjuste(memoriaPrincipal, memoriaSecundaria, procesos,colaProcesos);
             break;
           case 2:
-            algoritmo.inicioMejorAjuste(memoriaPrincipal, memoriaSecundaria, colaProcesos);
+            algoritmo.inicioMejorAjuste(memoriaPrincipal, memoriaSecundaria, procesos, colaProcesos);
             break;
           case 3:
-            algoritmo.inicioPeorAjuste(memoriaPrincipal, memoriaSecundaria, colaProcesos);
+            algoritmo.inicioPeorAjuste(memoriaPrincipal, memoriaSecundaria, procesos, colaProcesos);
             break;
           default:
             System.out.println("Algoritmo no valido");

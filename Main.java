@@ -36,8 +36,8 @@ public class Main {
     for (int j = 0; j < 10; j++) {
       tamanoProceso = random.nextInt(3) + 1;
       quantum = random.nextInt(5) + 1;
-      procesos.add(new Proceso(tamanoProceso, quantum, j));
-      colaProcesos.add(procesos.get(j));
+      //procesos.add(new Proceso(tamanoProceso, quantum, j));
+      colaProcesos.add(new Proceso(tamanoProceso, quantum, j));
     }
 
     Nucleo nucleos[] = new Nucleo[numNucleos];

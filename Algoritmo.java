@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Scanner;
@@ -147,11 +148,36 @@ public class Algoritmo {
     }
   }
 
-  public boolean inicioPrimerAjuste(Proceso[] memoria, Proceso[] memoriaSecundaria, LinkedList<Proceso> colaProcesos) {
+  public boolean inicioPrimerAjuste(Proceso[] memoria, Proceso[] memoriaSecundaria, ArrayList<Proceso> procesos,LinkedList<Proceso> colaProcesos) {
     try {
       semaforo.acquire(); // Semaforo para que solo un hilo pueda acceder a la vez
       lock.lock();
-      Proceso p = colaProcesos.poll(); // Se obtiene el primer proceso de la cola
+      int tipoEjecucion = random.nextInt(2); // Se determina si se ejecuta un proceso nuevo o uno de la cola 0=nuevo, 1=ejecuta de la cola
+      Proceso p = null;
+      if(tipoEjecucion==0){
+        if(colaProcesos.isEmpty()){
+          int id = random.nextInt(procesos.size());
+          p = procesos.get(id);
+        }
+        else if(!procesos.isEmpty()){
+          p = colaProcesos.poll();
+        }
+        else 
+          return false;
+
+      }
+      else if(tipoEjecucion==1){
+        if(!procesos.isEmpty()){
+          System.out.println("No hay procesos en ejecucion");
+          int id = random.nextInt(procesos.size());
+          p = procesos.get(id);
+        }
+        else if(!colaProcesos.isEmpty()){
+          p = colaProcesos.poll();
+        }
+        
+      }
+      
       boolean resultado = false;
       System.out.println("---Proceso " + p.id + " solicitado---");
       int aux = determinarOperacion(memoria, p, memoriaSecundaria);
@@ -164,6 +190,7 @@ public class Algoritmo {
       if (seleccion == 1) {
         if (primerAjuste(memoria, p, memoriaSecundaria, pilaLIFO, pilaLIFOSec)) {
           System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
+          procesos.add(p);
           resultado = true;
         } else {
           if (aux == 0) {
@@ -174,6 +201,7 @@ public class Algoritmo {
       } else if (seleccion == 2) {
         if (primerAjuste(memoria, p, memoriaSecundaria, colaFIFO, colaFIFOSec)) {
           System.out.println("---Proceso " + p.id + " con tamano:" + p.tamano + " insertado en memoria---\n");
+          procesos.add(p);
           resultado = true;
         } else {
           if (aux == 0) {
@@ -201,7 +229,7 @@ public class Algoritmo {
     }
   }
 
-  public boolean inicioMejorAjuste(Proceso[] memoria, Proceso[] memoriaSecundaria, LinkedList<Proceso> colaProcesos) {
+  public boolean inicioMejorAjuste(Proceso[] memoria, Proceso[] memoriaSecundaria, ArrayList<Proceso> procesos,LinkedList<Proceso> colaProcesos) {
     try {
       semaforo.acquire();
       lock.lock();
@@ -255,7 +283,7 @@ public class Algoritmo {
     }
   }
 
-  public boolean inicioPeorAjuste(Proceso[] memoria, Proceso[] memoriaSecundaria, LinkedList<Proceso> colaProcesos) {
+  public boolean inicioPeorAjuste(Proceso[] memoria, Proceso[] memoriaSecundaria, ArrayList<Proceso> procesos,LinkedList<Proceso> colaProcesos) {
     try {
       semaforo.acquire();
       lock.lock();
